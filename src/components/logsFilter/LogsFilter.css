@@ -1,0 +1,129 @@
+/* LogsFilter.css */
+.logs-filter {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.logs-filter__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+
+.logs-filter__row:last-child {
+  margin-bottom: 0;
+}
+
+.logs-filter__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 160px;
+}
+
+.logs-filter__field:last-child {
+  flex: 1;
+}
+
+.logs-filter__label {
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.logs-filter__input,
+.logs-filter__select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.logs-filter__input:focus,
+.logs-filter__select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.logs-filter__input:disabled {
+  background: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.logs-filter__button {
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: fit-content;
+}
+
+.logs-filter__button:hover:not(:disabled) {
+  background: #0056b3;
+  border-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.logs-filter__button:disabled {
+  background: #6c757d;
+  border-color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.logs-filter__button--ghost {
+  background: #f8f9fa;
+  color: #6c757d;
+  border-color: #dee2e6;
+}
+
+.logs-filter__button--ghost:hover:not(:disabled) {
+  background: #e9ecef;
+  color: #495057;
+  border-color: #adb5bd;
+}
+
+.logs-filter__button--danger {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+.logs-filter__button--danger:hover:not(:disabled) {
+  background: #c82333;
+  border-color: #bd2130;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .logs-filter {
+    padding: 16px;
+  }
+  
+  .logs-filter__row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .logs-filter__field {
+    min-width: auto;
+  }
+  
+  .logs-filter__button {
+    margin-top: 8px;
+  }
+}

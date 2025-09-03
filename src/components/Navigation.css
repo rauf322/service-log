@@ -1,0 +1,89 @@
+/* Navigation.css - TanStack Router Navigation Styling */
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link {
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  color: #666;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  position: relative;
+}
+
+.nav-link:hover {
+  background-color: #e9ecef;
+  color: #333;
+  transform: translateY(-1px);
+}
+
+.nav-link.active {
+  background-color: #007bff;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid white;
+}
+
+.app-main {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .app-nav {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .nav-link {
+    text-align: center;
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-link.active::after {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-nav {
+    padding: 0.5rem;
+  }
+
+  .nav-link {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+}
