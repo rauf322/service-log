@@ -1,8 +1,10 @@
 import { useSelector, useDispatch } from "react-redux";
+import { useEffect } from "react";
 import { RootState, AppDispatch } from "@/store/index.ts";
 import {
   deleteDraftFromStorage,
   deleteAllDraftsFromStorage,
+  loadDraftsFromStorage,
 } from "@/store/features/drafts/index.ts";
 import { loadFormData } from "@/store/features/serviceForm/index.ts";
 import { Draft } from "@/types/serviceLog";
@@ -15,6 +17,11 @@ function DraftManager() {
   );
   const navigate = useNavigate({ from: "/drafts" });
   const dispatch = useDispatch<AppDispatch>();
+
+  // Load drafts on component mount
+  useEffect(() => {
+    dispatch(loadDraftsFromStorage());
+  }, [dispatch]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
