@@ -95,19 +95,4 @@ Built with TanStack Router for type-safe navigation:
 - **IndexedDB**: For offline draft storage
 - **Local Storage**: For user preferences and settings
 
-8. Open a Pull Request
-
-## 📄 License
-
-This project is private and proprietary.
-
-## 🔧 Environment Setup
-
-The application is configured to work with:
-
-- Modern browsers with ES2020+ support
-- Local development with Vite's fast HMR
-- Production builds optimized for performance
-
-For additional configuration options, see the `vite.config.ts` and `tsconfig.json` files.
 
