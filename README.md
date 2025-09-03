@@ -23,6 +23,10 @@ A modern React application for managing service logs with draft functionality, f
 - **Vite** - Fast build tool and dev server
 - **ESLint** - Code quality and consistency
 
+
+<img width="847" height="1133" alt="image" src="https://github.com/user-attachments/assets/4da123fa-7dd9-4632-a9d5-ae729281a44e" />
+
+
 ## 📁 Project Structure
 
 ```
