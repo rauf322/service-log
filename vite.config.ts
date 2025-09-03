@@ -5,13 +5,13 @@ import { fileURLToPath, URL } from "node:url";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    tanstackRouter()
-  ],
+  plugins: [react(), tanstackRouter()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
+  },
+  server: {
+    host: true,
   },
 });

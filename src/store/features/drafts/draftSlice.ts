@@ -6,6 +6,7 @@ import {
   deleteDraftFromDb,
   deleteAllDraftsFromDb,
 } from "../../../utils/indexedDb";
+import { generateUUID } from "../../../utils/uuid";
 
 export type DraftState = {
   drafts: Draft[];
@@ -25,7 +26,7 @@ export const saveDraftToStorage = createAsyncThunk(
   async (payload: { title: string; formData: ServiceLog }) => {
     const now = new Date().toISOString();
     const draft: Draft = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       title: payload.title,
       data: payload.formData,
       createdAt: now,
