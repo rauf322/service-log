@@ -57,6 +57,23 @@
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
 }
 
+.service-form__input--error {
+  border-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+.service-form__input--error:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.service-form__error-text {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
 .service-form__textarea {
   resize: vertical;
   min-height: 80px;

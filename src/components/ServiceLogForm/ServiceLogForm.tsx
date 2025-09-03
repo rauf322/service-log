@@ -44,6 +44,20 @@ function ServiceLogForm() {
   type ToastData = { id: string; message: string; type: ToastType };
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
+  // Validation state and local input values
+  const [validationErrors, setValidationErrors] = useState<{
+    odometer?: string;
+    engineHours?: string;
+  }>({});
+  
+  const [inputValues, setInputValues] = useState<{
+    odometer: string;
+    engineHours: string;
+  }>({
+    odometer: formData.odometer.toString(),
+    engineHours: formData.engineHours.toString(),
+  });
+
   const showToast = (message: string, type: ToastType) => {
     const id = Date.now().toString();
     setToasts(prev => [...prev, { id, message, type }]);
@@ -53,12 +67,46 @@ function ServiceLogForm() {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   };
 
+  // Validation functions
+  const isValidPositiveNumber = (value: string): boolean => {
+    if (value === "") return false;
+    const num = parseFloat(value);
+    return !isNaN(num) && num > 0;
+  };
+
+  const validateNumericField = (field: 'odometer' | 'engineHours', value: string) => {
+    const errors = { ...validationErrors };
+    
+    if (value === "") {
+      errors[field] = "This field is required";
+    } else if (!isValidPositiveNumber(value)) {
+      errors[field] = "Must be a positive number";
+    } else {
+      delete errors[field];
+    }
+    
+    setValidationErrors(errors);
+    return !errors[field];
+  };
+
   const handleFieldChange = useCallback(
     (field: keyof ServiceLog, value: string | number) => {
       dispatch(updateFormField({ field, value }));
     },
     [dispatch],
   );
+
+  const handleNumericFieldChange = (field: 'odometer' | 'engineHours', value: string) => {
+    // Update local input value immediately
+    setInputValues(prev => ({ ...prev, [field]: value }));
+    
+    // Validate and update store if valid
+    const isValid = validateNumericField(field, value);
+    if (isValid) {
+      const numericValue = parseFloat(value);
+      dispatch(updateFormField({ field, value: numericValue }));
+    }
+  };
 
   const handleStartDateChange = (value: string) => {
     handleFieldChange("startDate", value);
@@ -87,6 +135,14 @@ function ServiceLogForm() {
     dispatch(loadDraftsFromStorage());
   }, [dispatch]);
 
+  // Sync input values with form data changes (for draft loading, editing, etc.)
+  useEffect(() => {
+    setInputValues({
+      odometer: formData.odometer.toString(),
+      engineHours: formData.engineHours.toString(),
+    });
+  }, [formData.odometer, formData.engineHours]);
+
   // Populate form when in edit mode
   useEffect(() => {
     if (isEditMode && editingLog) {
@@ -102,9 +158,35 @@ function ServiceLogForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate numeric fields before submission
+    const hasOdometerError = !isValidPositiveNumber(inputValues.odometer);
+    const hasEngineHoursError = !isValidPositiveNumber(inputValues.engineHours);
+    
+    if (hasOdometerError || hasEngineHoursError) {
+      const errors: { odometer?: string; engineHours?: string } = {};
+      if (hasOdometerError) errors.odometer = "Must be a positive number";
+      if (hasEngineHoursError) errors.engineHours = "Must be a positive number";
+      setValidationErrors(errors);
+      showToast("Please fix validation errors before submitting", "error");
+      return;
+    }
+    
+    // Ensure numeric values are up to date in store
+    const odometerValue = parseFloat(inputValues.odometer);
+    const engineHoursValue = parseFloat(inputValues.engineHours);
+    dispatch(updateFormField({ field: "odometer", value: odometerValue }));
+    dispatch(updateFormField({ field: "engineHours", value: engineHoursValue }));
+    
+    // Use updated form data with correct numeric values
+    const submissionData = {
+      ...formData,
+      odometer: odometerValue,
+      engineHours: engineHoursValue,
+    };
+    
     if (isEditMode && editingLog) {
       // Update existing log
-      const updatedLog = { ...formData, id: editingLog.id };
+      const updatedLog = { ...submissionData, id: editingLog.id };
       updateLogMutation.mutate(updatedLog, {
         onSuccess: () => {
           dispatch(clearForm());
@@ -117,7 +199,7 @@ function ServiceLogForm() {
       });
     } else {
       // Create new log
-      addLogMutation.mutate(formData, {
+      addLogMutation.mutate(submissionData, {
         onSuccess: () => {
           dispatch(clearForm());
           showToast("Service log submitted successfully!", "success");
@@ -214,16 +296,20 @@ function ServiceLogForm() {
               Odometer (mi):
             </label>
             <input
-              className="service-form__input"
-              type="number"
+              className={`service-form__input ${validationErrors.odometer ? 'service-form__input--error' : ''}`}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*\.?[0-9]*"
               id="odometer"
-              value={formData.odometer}
+              value={inputValues.odometer}
               onChange={(e) =>
-                handleFieldChange("odometer", parseInt(e.target.value) || 0)
+                handleNumericFieldChange("odometer", e.target.value)
               }
-              min="0"
               required
             />
+            {validationErrors.odometer && (
+              <span className="service-form__error-text">{validationErrors.odometer}</span>
+            )}
           </div>
 
           <div className="service-form__group">
@@ -231,16 +317,20 @@ function ServiceLogForm() {
               Engine Hours:
             </label>
             <input
-              className="service-form__input"
-              type="number"
+              className={`service-form__input ${validationErrors.engineHours ? 'service-form__input--error' : ''}`}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*\.?[0-9]*"
               id="engineHours"
-              value={formData.engineHours}
+              value={inputValues.engineHours}
               onChange={(e) =>
-                handleFieldChange("engineHours", parseInt(e.target.value) || 0)
+                handleNumericFieldChange("engineHours", e.target.value)
               }
-              min="0"
               required
             />
+            {validationErrors.engineHours && (
+              <span className="service-form__error-text">{validationErrors.engineHours}</span>
+            )}
           </div>
         </div>
 
