@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# If you use client-side routing (React Router/Vue Router/SvelteKit SPA mode)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Optional: set Node version / env vars
+[build.environment]
+  NODE_VERSION = "20"
+  # Vite client envs must start with VITE_
+  # VITE_TMDB_API_KEY = "your_key_here"
+
