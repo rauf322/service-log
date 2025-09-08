@@ -1,20 +1,24 @@
-import { ServiceLog, ServiceType } from "@/types/serviceLog";
-import { useSelector, useDispatch } from "react-redux";
+import { ServiceLog, ServiceType } from '@/types/serviceLog';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   updateFormField,
   clearForm,
-} from "@/store/features/serviceForm/index.ts";
+} from '@/store/features/serviceForm/index.ts';
 import {
   saveDraftToStorage,
   loadDraftsFromStorage,
-} from "@/store/features/drafts/index.ts";
-import { RootState, AppDispatch } from "@/store/index.ts";
-import { useAddServiceLog, useUpdateServiceLog, useSavedLogs } from "@/hooks/useServiceLogs";
-import { getTodayDate, getMinEndDate } from "@/utils/dateUtils";
-import { useEffect, useCallback, useState } from "react";
-import Toast, { ToastType } from "@/components/Toast/Toast";
-import { useSearch, useNavigate } from "@tanstack/react-router";
-import "./ServiceLogForm.css";
+} from '@/store/features/drafts/index.ts';
+import { RootState, AppDispatch } from '@/store/index.ts';
+import {
+  useAddServiceLog,
+  useUpdateServiceLog,
+  useSavedLogs,
+} from '@/hooks/useServiceLogs';
+import { getTodayDate, getMinEndDate } from '@/utils/dateUtils';
+import { useEffect, useCallback, useState } from 'react';
+import Toast, { ToastType } from '@/components/Toast/Toast';
+import { useSearch, useNavigate } from '@tanstack/react-router';
+import './ServiceLogForm.css';
 
 function ServiceLogForm() {
   const formData = useSelector(
@@ -26,19 +30,20 @@ function ServiceLogForm() {
   const updateLogMutation = useUpdateServiceLog();
   const { data: savedLogs } = useSavedLogs();
   const navigate = useNavigate();
-  
+
   // Get edit parameter from URL
   const { edit: editId } = useSearch({ from: '/' });
-  
+
   // Determine if we're in edit mode
   const isEditMode = !!editId;
-  const editingLog = isEditMode && savedLogs 
-    ? savedLogs.find(log => log.id?.toString() === editId)
-    : null;
+  const editingLog =
+    isEditMode && savedLogs
+      ? savedLogs.find((log) => log.id?.toString() === editId)
+      : null;
 
   // Draft dialog state
   const [showDraftDialog, setShowDraftDialog] = useState(false);
-  const [draftName, setDraftName] = useState("");
+  const [draftName, setDraftName] = useState('');
 
   // Toast state
   type ToastData = { id: string; message: string; type: ToastType };
@@ -49,7 +54,7 @@ function ServiceLogForm() {
     odometer?: string;
     engineHours?: string;
   }>({});
-  
+
   const [inputValues, setInputValues] = useState<{
     odometer: string;
     engineHours: string;
@@ -60,31 +65,34 @@ function ServiceLogForm() {
 
   const showToast = (message: string, type: ToastType) => {
     const id = Date.now().toString();
-    setToasts(prev => [...prev, { id, message, type }]);
+    setToasts((prev) => [...prev, { id, message, type }]);
   };
 
   const removeToast = (id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
   // Validation functions
   const isValidPositiveNumber = (value: string): boolean => {
-    if (value === "") return false;
+    if (value === '') return false;
     const num = parseFloat(value);
     return !isNaN(num) && num > 0;
   };
 
-  const validateNumericField = (field: 'odometer' | 'engineHours', value: string) => {
+  const validateNumericField = (
+    field: 'odometer' | 'engineHours',
+    value: string,
+  ) => {
     const errors = { ...validationErrors };
-    
-    if (value === "") {
-      errors[field] = "This field is required";
+
+    if (value === '') {
+      errors[field] = 'This field is required';
     } else if (!isValidPositiveNumber(value)) {
-      errors[field] = "Must be a positive number";
+      errors[field] = 'Must be a positive number';
     } else {
       delete errors[field];
     }
-    
+
     setValidationErrors(errors);
     return !errors[field];
   };
@@ -96,10 +104,13 @@ function ServiceLogForm() {
     [dispatch],
   );
 
-  const handleNumericFieldChange = (field: 'odometer' | 'engineHours', value: string) => {
+  const handleNumericFieldChange = (
+    field: 'odometer' | 'engineHours',
+    value: string,
+  ) => {
     // Update local input value immediately
-    setInputValues(prev => ({ ...prev, [field]: value }));
-    
+    setInputValues((prev) => ({ ...prev, [field]: value }));
+
     // Validate and update store if valid
     const isValid = validateNumericField(field, value);
     if (isValid) {
@@ -109,13 +120,13 @@ function ServiceLogForm() {
   };
 
   const handleStartDateChange = (value: string) => {
-    handleFieldChange("startDate", value);
+    handleFieldChange('startDate', value);
     const newMinEndDate = getMinEndDate(value);
     if (formData.endDate && formData.endDate < newMinEndDate) {
-      handleFieldChange("endDate", newMinEndDate);
+      handleFieldChange('endDate', newMinEndDate);
     } else if (!formData.endDate) {
       // Set default end date if empty
-      handleFieldChange("endDate", newMinEndDate);
+      handleFieldChange('endDate', newMinEndDate);
     }
   };
 
@@ -126,7 +137,7 @@ function ServiceLogForm() {
   useEffect(() => {
     if (formData.startDate && !formData.endDate) {
       const defaultEndDate = getMinEndDate(formData.startDate);
-      handleFieldChange("endDate", defaultEndDate);
+      handleFieldChange('endDate', defaultEndDate);
     }
   }, [formData.startDate, formData.endDate, handleFieldChange]);
 
@@ -157,44 +168,46 @@ function ServiceLogForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate numeric fields before submission
     const hasOdometerError = !isValidPositiveNumber(inputValues.odometer);
     const hasEngineHoursError = !isValidPositiveNumber(inputValues.engineHours);
-    
+
     if (hasOdometerError || hasEngineHoursError) {
       const errors: { odometer?: string; engineHours?: string } = {};
-      if (hasOdometerError) errors.odometer = "Must be a positive number";
-      if (hasEngineHoursError) errors.engineHours = "Must be a positive number";
+      if (hasOdometerError) errors.odometer = 'Must be a positive number';
+      if (hasEngineHoursError) errors.engineHours = 'Must be a positive number';
       setValidationErrors(errors);
-      showToast("Please fix validation errors before submitting", "error");
+      showToast('Please fix validation errors before submitting', 'error');
       return;
     }
-    
+
     // Ensure numeric values are up to date in store
     const odometerValue = parseFloat(inputValues.odometer);
     const engineHoursValue = parseFloat(inputValues.engineHours);
-    dispatch(updateFormField({ field: "odometer", value: odometerValue }));
-    dispatch(updateFormField({ field: "engineHours", value: engineHoursValue }));
-    
+    dispatch(updateFormField({ field: 'odometer', value: odometerValue }));
+    dispatch(
+      updateFormField({ field: 'engineHours', value: engineHoursValue }),
+    );
+
     // Use updated form data with correct numeric values
     const submissionData = {
       ...formData,
       odometer: odometerValue,
       engineHours: engineHoursValue,
     };
-    
+
     if (isEditMode && editingLog) {
       // Update existing log
       const updatedLog = { ...submissionData, id: editingLog.id };
       updateLogMutation.mutate(updatedLog, {
         onSuccess: () => {
           dispatch(clearForm());
-          showToast("Service log updated successfully!", "success");
+          showToast('Service log updated successfully!', 'success');
           navigate({ to: '/saved' });
         },
         onError: (error) => {
-          showToast(`Failed to update service log: ${error.message}`, "error");
+          showToast(`Failed to update service log: ${error.message}`, 'error');
         },
       });
     } else {
@@ -202,10 +215,10 @@ function ServiceLogForm() {
       addLogMutation.mutate(submissionData, {
         onSuccess: () => {
           dispatch(clearForm());
-          showToast("Service log submitted successfully!", "success");
+          showToast('Service log submitted successfully!', 'success');
         },
         onError: (error) => {
-          showToast(`Failed to submit service log: ${error.message}`, "error");
+          showToast(`Failed to submit service log: ${error.message}`, 'error');
         },
       });
     }
@@ -223,14 +236,14 @@ function ServiceLogForm() {
     if (draftName.trim()) {
       dispatch(saveDraftToStorage({ title: draftName.trim(), formData }));
       setShowDraftDialog(false);
-      setDraftName("");
-      showToast("Draft saved successfully!", "success");
+      setDraftName('');
+      showToast('Draft saved successfully!', 'success');
     }
   };
 
   const handleCancelSaveDraft = () => {
     setShowDraftDialog(false);
-    setDraftName("");
+    setDraftName('');
   };
 
   const handleCancelEdit = () => {
@@ -240,109 +253,113 @@ function ServiceLogForm() {
 
   return (
     <div>
-      <h1 className="service-form__title">
-        {isEditMode ? "Edit Service Log" : "Service Log Form"}
+      <h1 className='service-form__title'>
+        {isEditMode ? 'Edit Service Log' : 'Service Log Form'}
       </h1>
-      <form className="service-form" onSubmit={handleSubmit}>
-        <div className="service-form__row">
-          <div className="service-form__group">
-            <label className="service-form__label" htmlFor="providerId">
+      <form className='service-form' onSubmit={handleSubmit}>
+        <div className='service-form__row'>
+          <div className='service-form__group'>
+            <label className='service-form__label' htmlFor='providerId'>
               Provider ID:
             </label>
             <input
-              className="service-form__input"
-              type="text"
-              id="providerId"
+              className='service-form__input'
+              type='text'
+              id='providerId'
               value={formData.providerId}
-              onChange={(e) => handleFieldChange("providerId", e.target.value)}
+              onChange={(e) => handleFieldChange('providerId', e.target.value)}
               required
             />
           </div>
 
-          <div className="service-form__group">
-            <label className="service-form__label" htmlFor="serviceOrder">
+          <div className='service-form__group'>
+            <label className='service-form__label' htmlFor='serviceOrder'>
               Service Order:
             </label>
             <input
-              className="service-form__input"
-              type="text"
-              id="serviceOrder"
+              className='service-form__input'
+              type='text'
+              id='serviceOrder'
               value={formData.serviceOrder}
               onChange={(e) =>
-                handleFieldChange("serviceOrder", e.target.value)
+                handleFieldChange('serviceOrder', e.target.value)
               }
               required
             />
           </div>
         </div>
 
-        <div className="service-form__group">
-          <label className="service-form__label" htmlFor="carId">
+        <div className='service-form__group'>
+          <label className='service-form__label' htmlFor='carId'>
             Car ID:
           </label>
           <input
-            className="service-form__input"
-            type="text"
-            id="carId"
+            className='service-form__input'
+            type='text'
+            id='carId'
             value={formData.carId}
-            onChange={(e) => handleFieldChange("carId", e.target.value)}
+            onChange={(e) => handleFieldChange('carId', e.target.value)}
             required
           />
         </div>
 
-        <div className="service-form__row">
-          <div className="service-form__group">
-            <label className="service-form__label" htmlFor="odometer">
+        <div className='service-form__row'>
+          <div className='service-form__group'>
+            <label className='service-form__label' htmlFor='odometer'>
               Odometer (mi):
             </label>
             <input
               className={`service-form__input ${validationErrors.odometer ? 'service-form__input--error' : ''}`}
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*\.?[0-9]*"
-              id="odometer"
+              type='text'
+              inputMode='numeric'
+              pattern='[0-9]*\.?[0-9]*'
+              id='odometer'
               value={inputValues.odometer}
               onChange={(e) =>
-                handleNumericFieldChange("odometer", e.target.value)
+                handleNumericFieldChange('odometer', e.target.value)
               }
               required
             />
             {validationErrors.odometer && (
-              <span className="service-form__error-text">{validationErrors.odometer}</span>
+              <span className='service-form__error-text'>
+                {validationErrors.odometer}
+              </span>
             )}
           </div>
 
-          <div className="service-form__group">
-            <label className="service-form__label" htmlFor="engineHours">
+          <div className='service-form__group'>
+            <label className='service-form__label' htmlFor='engineHours'>
               Engine Hours:
             </label>
             <input
               className={`service-form__input ${validationErrors.engineHours ? 'service-form__input--error' : ''}`}
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*\.?[0-9]*"
-              id="engineHours"
+              type='text'
+              inputMode='numeric'
+              pattern='[0-9]*\.?[0-9]*'
+              id='engineHours'
               value={inputValues.engineHours}
               onChange={(e) =>
-                handleNumericFieldChange("engineHours", e.target.value)
+                handleNumericFieldChange('engineHours', e.target.value)
               }
               required
             />
             {validationErrors.engineHours && (
-              <span className="service-form__error-text">{validationErrors.engineHours}</span>
+              <span className='service-form__error-text'>
+                {validationErrors.engineHours}
+              </span>
             )}
           </div>
         </div>
 
-        <div className="service-form__row">
-          <div className="service-form__group">
-            <label className="service-form__label" htmlFor="startDate">
+        <div className='service-form__row'>
+          <div className='service-form__group'>
+            <label className='service-form__label' htmlFor='startDate'>
               Start Date:
             </label>
             <input
-              className="service-form__input"
-              type="date"
-              id="startDate"
+              className='service-form__input'
+              type='date'
+              id='startDate'
               value={formData.startDate}
               onChange={(e) => handleStartDateChange(e.target.value)}
               min={getTodayDate()}
@@ -350,31 +367,31 @@ function ServiceLogForm() {
             />
           </div>
 
-          <div className="service-form__group">
-            <label className="service-form__label" htmlFor="endDate">
+          <div className='service-form__group'>
+            <label className='service-form__label' htmlFor='endDate'>
               End Date:
             </label>
             <input
-              className="service-form__input"
-              type="date"
-              id="endDate"
+              className='service-form__input'
+              type='date'
+              id='endDate'
               value={formData.endDate}
-              onChange={(e) => handleFieldChange("endDate", e.target.value)}
+              onChange={(e) => handleFieldChange('endDate', e.target.value)}
               min={minEndDate}
               required
             />
           </div>
         </div>
 
-        <div className="service-form__group">
-          <label className="service-form__label" htmlFor="type">
+        <div className='service-form__group'>
+          <label className='service-form__label' htmlFor='type'>
             Service Type:
           </label>
           <select
-            className="service-form__select"
-            id="type"
+            className='service-form__select'
+            id='type'
             value={formData.type}
-            onChange={(e) => handleFieldChange("type", e.target.value)}
+            onChange={(e) => handleFieldChange('type', e.target.value)}
             required
           >
             <option value={ServiceType.PLANNED}>Planned</option>
@@ -383,40 +400,44 @@ function ServiceLogForm() {
           </select>
         </div>
 
-        <div className="service-form__group">
-          <label className="service-form__label" htmlFor="serviceDescription">
+        <div className='service-form__group'>
+          <label className='service-form__label' htmlFor='serviceDescription'>
             Service Description:
           </label>
           <textarea
-            className="service-form__textarea"
-            id="serviceDescription"
+            className='service-form__textarea'
+            id='serviceDescription'
             value={formData.serviceDescription}
             onChange={(e) =>
-              handleFieldChange("serviceDescription", e.target.value)
+              handleFieldChange('serviceDescription', e.target.value)
             }
             rows={4}
             required
           />
         </div>
 
-        <div className="service-form__buttons">
+        <div className='service-form__buttons'>
           <button
-            type="submit"
-            className="service-form__button service-form__button--primary"
-            disabled={isEditMode ? updateLogMutation.isPending : addLogMutation.isPending}
+            type='submit'
+            className='service-form__button service-form__button--primary'
+            disabled={
+              isEditMode
+                ? updateLogMutation.isPending
+                : addLogMutation.isPending
+            }
           >
             {isEditMode
               ? updateLogMutation.isPending
-                ? "Updating..."
-                : "Update Service Log"
+                ? 'Updating...'
+                : 'Update Service Log'
               : addLogMutation.isPending
-              ? "Submitting..."
-              : "Submit Service Log"}
+                ? 'Submitting...'
+                : 'Submit Service Log'}
           </button>
           {isEditMode ? (
             <button
-              type="button"
-              className="service-form__button service-form__button--secondary"
+              type='button'
+              className='service-form__button service-form__button--secondary'
               onClick={handleCancelEdit}
             >
               Cancel Edit
@@ -424,15 +445,15 @@ function ServiceLogForm() {
           ) : (
             <>
               <button
-                type="button"
-                className="service-form__button service-form__button--draft"
+                type='button'
+                className='service-form__button service-form__button--draft'
                 onClick={handleSaveAsDraft}
               >
                 Save as Draft
               </button>
               <button
-                type="button"
-                className="service-form__button service-form__button--secondary"
+                type='button'
+                className='service-form__button service-form__button--secondary'
                 onClick={handleClear}
               >
                 Clear Form
@@ -443,41 +464,41 @@ function ServiceLogForm() {
       </form>
 
       {showDraftDialog && (
-        <div className="draft-dialog">
-          <div className="draft-dialog__content">
-            <h3 className="draft-dialog__title">Save as Draft</h3>
+        <div className='draft-dialog'>
+          <form className='draft-dialog__content'>
+            <h3 className='draft-dialog__title'>Save as Draft</h3>
             <input
-              className="draft-dialog__input"
-              type="text"
-              placeholder="Enter draft name..."
+              className='draft-dialog__input'
+              type='text'
+              placeholder='Enter draft name...'
               value={draftName}
               onChange={(e) => setDraftName(e.target.value)}
               autoFocus
             />
-            <div className="draft-dialog__buttons">
+            <div className='draft-dialog__buttons'>
               <button
-                className="draft-dialog__button draft-dialog__button--primary"
+                className='draft-dialog__button draft-dialog__button--primary'
                 onClick={handleConfirmSaveDraft}
                 disabled={!draftName.trim()}
               >
                 Save Draft
               </button>
               <button
-                className="draft-dialog__button draft-dialog__button--secondary"
+                className='draft-dialog__button draft-dialog__button--secondary'
                 onClick={handleCancelSaveDraft}
               >
                 Cancel
               </button>
             </div>
-          </div>
+          </form>
         </div>
       )}
 
       {draftState.isLoading && (
-        <div className="service-form__loading">Loading drafts...</div>
+        <div className='service-form__loading'>Loading drafts...</div>
       )}
       {draftState.error && (
-        <div className="service-form__error">Error: {draftState.error}</div>
+        <div className='service-form__error'>Error: {draftState.error}</div>
       )}
 
       {/* Toast notifications */}
@@ -494,3 +515,4 @@ function ServiceLogForm() {
 }
 
 export default ServiceLogForm;
+
